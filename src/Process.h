@@ -10,12 +10,14 @@
 
 #include <iostream>
 #include <vector>
-#include <pair>
+#include <utility>
 #include <string>
 #include "MemoryReference.h"
 
 extern const int pageSizes[];
 
+// pages for this process are always numbered from 1 to totalPageSize
+// page 0 is reserved and will always hit
 class Process {
     int id, totalPageSize;
     // in seconds
@@ -66,6 +68,10 @@ public:
      *      this should be generated from the memory controller
      */
     void printSwapStuff(const double &timestamp, const std::string &memoryMap) const;
+
+    /* prints the information about a process' memory references
+     */
+    void printMemoryReferences() const;
     friend std::ostream &operator<<(std::ostream &o, const Process &p);
 };
 
@@ -73,6 +79,6 @@ public:
  * sorts them by arrival time
  * @retval the generated processes
  */
-extern std::vector<Process> generateProcesses();
+extern std::vector<Process> generateProcesses(const std::pair<bool, MemoryReference>(*pageRequestHandle)(const int &pageNum, const int &procId));
 
 #endif

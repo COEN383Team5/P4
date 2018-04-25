@@ -6,18 +6,24 @@ const int pageSizes[] = {5, 11, 17, 31};
 bool Process::requestPage() {
     int page;
     if(lastReference == -1) {
-        page = INIT_PAGE ;
+        // first reference
+        page = INIT_PAGE;
+    } else if(lastReference == 0) {
+        // second reference
+        page = rand()%(totalPageSize)+1;
     } else {
+        // subsequent references
         int offset;
         if(rand()%10 < 7) {
             offset = (rand()%3)-1; // number from -1 to 1
         } else {
-            offset = (rand()%(totalPageSize-2))+2;
+            offset = (rand()%(totalPageSize-1))+2;
         } 
-        if(lastReference+offset < 0) {
-            page = totalPageSize-(lastReference+offset); 
-        } else if(lastReference+offset >= totalPageSize) {
-            page = (lastReference+offset)-totalPageSize;
+        // page will always be in the range from [1, totalPageSize]
+        if(lastReference+offset == 0) {
+            page = (totalPageSize)-(lastReference+offset); 
+        } else if(lastReference+offset > totalPageSize) {
+            page = (lastReference+offset)-(totalPageSize);
         } else {
             page = lastReference+offset;
         }
@@ -106,9 +112,16 @@ void Process::printSwapStuff(const double &timestamp, const std::string &memoryM
     std::cout << stringToPrint << memoryMap;
 }
 
+void Process:printMemoryReferences() const {
+    std::cout << "Process " << id << " references:\n ";
+    for(unsigned int i = 0; i < references.size(); i++) {
+        std::cout << references[i] << std::endl;
+    }
+}
+
 std::ostream &operator<<(std::ostream &os, const Process &p) {
     char stringToPrint[512];
-    snprintf(stringToPrint, 512, "Process %3d:\tatime=%2.1f\ttotalPageSize=%2d\tduration=%d\trunTime=%2.1f\thits=%3d\tmisses=%3d\t", p.id, p.arrivalTime, p.totalPageSize, p.duration, p.runTime, p.hits, p.misses);
+    snprintf(stringToPrint, 512, "Process %3d:\tatime=%2.1f\ttotalPageSize=%2d\tduration=%d\trunTime=%2.1f\thits=%3d\tmisses=%3d\tlastReference=%d", p.id, p.arrivalTime, p.totalPageSize, p.duration, p.runTime, p.hits, p.misses, p.lastReference);
     os << stringToPrint;
     return os;
 }
@@ -155,7 +168,7 @@ inline void sortByArrivalTime(std::vector<Process> *vec) {
     quickSort(vec, 0, vec->size());
 }
 
-std::vector<Process> generateProcesses() {
+std::vector<Process> generateProcesses(const std::pair<bool, MemeoryReference>(*pageRequestHandle)(const int &pageNum, const int &procId)) {
     std::vector<Process> retval;
     unsigned long long pageSizeIndex;
     double  arrivalTime;
@@ -168,7 +181,7 @@ std::vector<Process> generateProcesses() {
         arrivalTime = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%600)/10.0;
         duration = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%5)+1;
         pageSizeIndex = ((a*rand()+b)%PRIME_FOR_UNIFORMITY)%NUM_PAGE_OPTIONS;
-        retval.emplace_back(i, pageSizes[pageSizeIndex], arrivalTime, duration);
+        retval.emplace_back(i, pageSizes[pageSizeIndex], arrivalTime, duration, pageRequestHandle);
     }
     sortByArrivalTime(&retval);
     return retval;
