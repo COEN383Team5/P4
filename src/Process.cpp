@@ -3,6 +3,31 @@
 
 const int pageSizes[] = {5, 11, 17, 31};
 
+bool Process::requestPage() {
+    int page;
+    if(lastReference == -1) {
+        page = INIT_PAGE ;
+    } else {
+        int offset;
+        if(rand()%10 < 7) {
+            offset = (rand()%3)-1; // number from -1 to 1
+        } else {
+            offset = (rand()%(totalPageSize-2))+2;
+        } 
+        if(lastReference+offset < 0) {
+            page = totalPageSize-(lastReference+offset); 
+        } else if(lastReference+offset >= totalPageSize) {
+            page = (lastReference+offset)-totalPageSize;
+        } else {
+            page = lastReference+offset;
+        }
+    }
+    lastReference = page;
+    std::pair<bool, MemoryReference> refVal = pageRequestHandle(page, id); // TODO figure out how reference works
+    references.push_back(refVal.second());
+    return refVal.first();
+}
+
 Process::Process() {
     id = -1;    
     totalPageSize = -1;
@@ -10,46 +35,86 @@ Process::Process() {
     arrivalTime = -1;
     lastReference = -1;
     runTime = 0;
-    timeRemaing = 0;
+    hits = 0;
+    misses = 0;
+    pageRequestHandle = NULL;
 }
 
-Process::Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration) {
+Process::Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, const std::pair<bool, MemoryReference>(*pageRequestHandle)(const int &pageNum, const int &procId)) {
     this->id = id;
     this->totalPageSize = totalPageSize;
     this->arrivalTime = arrivalTime;
     this->duration = duration;
-    this->timeRemaing = duration;
     runTime = 0;
     lastReference = -1;
+    hits = 0;
+    misses = 0;
+    this->pageRequestHandle = pageRequestHandle
 }
 
-int Process::getId() {
+int Process::getId() const {
     return id;
 }
 
-int Process::getTotalPageSize() {
+int Process::getTotalPageSize() const {
     return totalPageSize;
 }
 
-double Process::getArrivalTime() {
+double Process::getArrivalTime() const {
     return arrivalTime;
 }
 
-int Process::getDuration() {
+int Process::getDuration() const {
     return duration;
 }
 
+int Process::getTimeRemaining() const {
+    return duration-runTime;
+}
+
+int Process:getHits() const {
+    return hits;
+}
+
+int Process::getMisses() const {
+    return misses;
+}
+
+double Process::getRunTime() const {
+    return runTime;
+}
+
+std::vector<MemoryReference> Process::getReferences() const {
+    return references;
+}
+
 bool Process::giveTime() {
-    // TODO
+    requestPage() ? hits++ : misses++;
+    runTime += .1;
+    return runTime == duration;
+}
+
+void Process::printSwapStuff(const double &timestamp, const std::string &memoryMap) const {
+    std::string enterExit;
+    if(getTimeRemaining() > 0) {
+        enterExit = "enter";
+    } else {
+        enterExit = "exit";
+    }
+    char stringToPrint[512];
+    snprintf(stringToPrint, 512, "%2.1f: Process %3d %s pages=%2d duration=%dseconds", timestamp, id, enterExit.c_str(), totalPageSize, duration);
+    std::cout << stringToPrint << memoryMap;
 }
 
 std::ostream &operator<<(std::ostream &os, const Process &p) {
-    char stringToPrint[256];
-    snprintf(stringToPrint, 256, "Process %3d:\tatime=%2.1f\ttotalPageSize=%2d\tduration=%d\t", p.id, p.arrivalTime, p.totalPageSize, p.duration);
+    char stringToPrint[512];
+    snprintf(stringToPrint, 512, "Process %3d:\tatime=%2.1f\ttotalPageSize=%2d\tduration=%d\trunTime=%2.1f\thits=%3d\tmisses=%3d\t", p.id, p.arrivalTime, p.totalPageSize, p.duration, p.runTime, p.hits, p.misses);
     os << stringToPrint;
     return os;
 }
 
+/* helper function to quick sort  
+ */
 int partition(std::vector<Process> *vec, const int &low, const int &high) {
     Process temp;
     int i = (low-1); 
@@ -68,6 +133,14 @@ int partition(std::vector<Process> *vec, const int &low, const int &high) {
     return i+1;
 }
 
+/* sorts vec by arrival time, sorts inbetween low and high
+ * @param vec
+ *      a reference to a vector of processes to sort by arrival time
+ * @param low
+ *      the low index to sort from 
+ * @param high
+ *      the high index to sort to
+ */
 void quickSort(std::vector<Process> *vec, const int &low, const int &high) {
     if(low < high) {
         int pivot = partition(vec, low, high);
@@ -76,7 +149,9 @@ void quickSort(std::vector<Process> *vec, const int &low, const int &high) {
     }
 }
 
-void sortByArrivalTime(std::vector<Process> *vec) {
+/* convience function to call quicksort
+ */
+inline void sortByArrivalTime(std::vector<Process> *vec) {
     quickSort(vec, 0, vec->size());
 }
 
