@@ -56,7 +56,9 @@ std::string PageTable::getMemoryMap() const {
     std::string retval;
     for(int i = 0; i < NUM_PAGE_TABLE_ENTRIES; i++) {
         if(table[i].valid) {
-            retval += std::string(ownderId) + " ";
+            char temp[6];
+            snprintf(temp, 6, "%d ", table[i].ownerId);
+            retval += std::string(temp);
         } else {
             retval += ". ";
         }
@@ -72,7 +74,8 @@ std::pair<bool, MemoryReference> PageTable::reference(const int &pageNum, const 
     if(pageNum == 0) {
         return std::pair<bool, MemoryReference>(true, MemoryReference(id, pageNum, -1, -1, 0));
     }
-    if(isInTable(pageNum, id) == -1) {
+    int index;
+    if((index = isInTable(pageNum, id)) == -1) {
         int freePage;
         if((freePage = getFreePage()) == -1) {
             // page fault, need to replace a page
@@ -82,5 +85,8 @@ std::pair<bool, MemoryReference> PageTable::reference(const int &pageNum, const 
             setPage(freePage, pageNum, id);
             return std::pair<bool, MemoryReference>(false, MemoryReference(id, pageNum, -1, -1, freePage));
         }
+    } else {
+        table[index].numRefs++;
+        return std::pair<bool, MemoryReference>(true, MemoryReference(id, pageNum, -1, -1, index));
     }
 }

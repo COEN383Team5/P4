@@ -14,6 +14,7 @@ struct PageTableEntry {
 };
 
 class PageTable {
+protected:
     PageTableEntry *table;
     int numFree;
     
@@ -30,6 +31,16 @@ class PageTable {
      * @retval returns the index to a free page in table, or -1 if there are no free pages
      */
     int getFreePage() const;
+
+    /* sets the relavent variables for a page being referenced for the first time
+     * @param page 
+     *      the index in table for the page being referenced
+     * @param pageNum
+     *      the virtual pageNumber, the owner's page number
+     * @param id
+     *      the id of the requesting process
+     */
+    void setPage(const int &page, const int &pageNum, const int &id);
 
     /* This function needs to be implemented in classes that inherit this one
      * and needs to preform the tasks of an algorithm (FIFO, LRU, LFU, MFU, random)

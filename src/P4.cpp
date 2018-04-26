@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     RandomPageReplacer pageTable;
     int procsIndex = 0, numCompleted = 0;
     // TODO define handler
-    std::vector<Process> procs = generateProcesses(pageTable.reference);
+    std::vector<Process> procs = generateProcesses(&pageTable);
     std::vector<Process *> runningProcs;
     for(unsigned int i = 0; i < procs.size(); i++) {
         std::cout << procs[i] << std::endl;

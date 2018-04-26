@@ -29,7 +29,7 @@ bool Process::requestPage() {
         }
     }
     lastReference = page;
-    std::pair<bool, MemoryReference> refVal = pageRequestHandle(page, id); // TODO figure out how reference works
+    std::pair<bool, MemoryReference> refVal = pt->reference(page, id); 
     references.push_back(refVal.second());
     return refVal.first();
 }
@@ -46,7 +46,7 @@ Process::Process() {
     pageRequestHandle = NULL;
 }
 
-Process::Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, const std::pair<bool, MemoryReference>(*pageRequestHandle)(const int &pageNum, const int &procId)) {
+Process::Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, PageTable *pt) {
     this->id = id;
     this->totalPageSize = totalPageSize;
     this->arrivalTime = arrivalTime;
@@ -55,7 +55,7 @@ Process::Process(const int &id, const int &totalPageSize, const double &arrivalT
     lastReference = -1;
     hits = 0;
     misses = 0;
-    this->pageRequestHandle = pageRequestHandle
+    this->pt = pt;
 }
 
 int Process::getId() const {
@@ -168,7 +168,7 @@ inline void sortByArrivalTime(std::vector<Process> *vec) {
     quickSort(vec, 0, vec->size());
 }
 
-std::vector<Process> generateProcesses(const std::pair<bool, MemeoryReference>(*pageRequestHandle)(const int &pageNum, const int &procId)) {
+std::vector<Process> generateProcesses(PageTable *pt) {
     std::vector<Process> retval;
     unsigned long long pageSizeIndex;
     double  arrivalTime;
@@ -181,7 +181,7 @@ std::vector<Process> generateProcesses(const std::pair<bool, MemeoryReference>(*
         arrivalTime = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%600)/10.0;
         duration = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%5)+1;
         pageSizeIndex = ((a*rand()+b)%PRIME_FOR_UNIFORMITY)%NUM_PAGE_OPTIONS;
-        retval.emplace_back(i, pageSizes[pageSizeIndex], arrivalTime, duration, pageRequestHandle);
+        retval.emplace_back(i, pageSizes[pageSizeIndex], arrivalTime, duration, pt);
     }
     sortByArrivalTime(&retval);
     return retval;

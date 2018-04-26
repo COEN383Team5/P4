@@ -13,6 +13,7 @@
 #include <utility>
 #include <string>
 #include "MemoryReference.h"
+#include "PageTable.h"
 
 extern const int pageSizes[];
 
@@ -29,9 +30,7 @@ class Process {
     double arrivalTime, runTime;
     int hits, misses;
     std::vector<MemoryReference> references;
-    // this is a function pointer to what will handle a page request
-    // TODO figure out where it should point
-    std::pair<bool, MemoryReference> (*pageRequestHandle)(const int &pageNum, const int &procId);
+    PageTable *ptHandler;
 
     /* Generates a page request and asks the memory manager for the page
      * and fills references
@@ -41,7 +40,7 @@ class Process {
     bool requestPage();
 public:
     Process();
-    Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, const std::pair<bool, MemoryReference>(*pageRequestHandle)(const int &pageNum, const int &procId));
+    Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, PageTable *pt);
 
     int getId() const;
     int getTotalPageSize() const;
@@ -79,6 +78,6 @@ public:
  * sorts them by arrival time
  * @retval the generated processes
  */
-extern std::vector<Process> generateProcesses(const std::pair<bool, MemoryReference>(*pageRequestHandle)(const int &pageNum, const int &procId));
+extern std::vector<Process> generateProcesses(PageTable *pt);
 
 #endif
