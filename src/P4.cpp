@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     srand(time(NULL));
     RandomPageReplacer pageTable;
     int procsIndex = 0, numCompleted = 0;
-    // TODO define handler
+    // TODO define handlers
     Process *procs = generateProcesses(&pageTable);
     std::vector<Process *> runningProcs;
     for(unsigned int i = 0; i < NUM_PROCS_TO_MAKE; i++) {
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-    std::cout << "Number of completed processes=" << numCompleted;
+    std::cout << "Number of completed processes=" << numCompleted << std::endl;
     delete[] procs;
     return 0;
 }

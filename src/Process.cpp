@@ -97,7 +97,7 @@ std::vector<MemoryReference> Process::getReferences() const {
 bool Process::giveTime() {
     requestPage() ? hits++ : misses++;
     runTime += .1;
-    return runTime == duration;
+    return (int)runTime == duration;
 }
 
 void Process::printSwapStuff(const double &timestamp, const std::string &memoryMap) const {
@@ -108,7 +108,7 @@ void Process::printSwapStuff(const double &timestamp, const std::string &memoryM
         enterExit = "exit";
     }
     char stringToPrint[512];
-    snprintf(stringToPrint, 512, "%2.1f: Process %3d %s pages=%2d duration=%dseconds", timestamp, id, enterExit.c_str(), totalPageSize, duration);
+    snprintf(stringToPrint, 512, "%2.1f: Process %3d %s pages=%2d duration=%dseconds\n", timestamp, id, enterExit.c_str(), totalPageSize, duration);
     std::cout << stringToPrint << memoryMap << std::endl;
 }
 

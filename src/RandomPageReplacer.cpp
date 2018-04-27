@@ -1,3 +1,4 @@
+#include <iostream>
 #include "RandomPageReplacer.h"
 
 std::pair<bool, MemoryReference> RandomPageReplacer::algImpl(const int &pageNum, const int &id) {

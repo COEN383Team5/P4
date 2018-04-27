@@ -9,7 +9,7 @@
 #include "PageTable.h"
 
 //#define NUM_PROCS_TO_MAKE 150
-#define NUM_PROCS_TO_MAKE 3
+#define NUM_PROCS_TO_MAKE 150
 #define NUM_PAGE_OPTIONS 4
 // http://primes.utm.edu/lists/2small/0bit.html
 // this is the prime (2^8)-5
