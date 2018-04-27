@@ -24,6 +24,7 @@ MemoryReference::MemoryReference(const int &pageReferenced, const int &processId
 }
 
 std::ostream &operator<<(std::ostream &os, const MemoryReference &m) {
-    std::cout << m.timeStamp << ": Process " << m.processId << "\tpageRefd="
+    os << m.timeStamp << ": Process " << m.processId << "\tpageRefd="
         << m.pageReferenced << "\tpageInMemory=" << m.pageInMemory << "\tevicted=" << m.evicted;
+    return os;
 }

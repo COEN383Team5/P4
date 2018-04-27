@@ -1,19 +1,20 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#define NUM_PROCS_TO_MAKE 150
-#define NUM_PAGE_OPTIONS 4
-// http://primes.utm.edu/lists/2small/0bit.html
-// this is the prime (2^8)-5
-#define PRIME_FOR_UNIFORMITY 251
-#define INIT_PAGE 0
-
 #include <iostream>
 #include <vector>
 #include <utility>
 #include <string>
 #include "MemoryReference.h"
 #include "PageTable.h"
+
+//#define NUM_PROCS_TO_MAKE 150
+#define NUM_PROCS_TO_MAKE 3
+#define NUM_PAGE_OPTIONS 4
+// http://primes.utm.edu/lists/2small/0bit.html
+// this is the prime (2^8)-5
+#define PRIME_FOR_UNIFORMITY 251
+#define INIT_PAGE 0
 
 extern const int pageSizes[];
 
@@ -78,6 +79,6 @@ public:
  * sorts them by arrival time
  * @retval the generated processes
  */
-extern std::vector<Process> generateProcesses(PageTable *pt);
+extern Process *generateProcesses(PageTable *pt);
 
 #endif

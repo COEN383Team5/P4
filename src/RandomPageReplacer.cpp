@@ -8,3 +8,19 @@ std::pair<bool, MemoryReference> RandomPageReplacer::algImpl(const int &pageNum,
     setPage(page, pageNum, id);
     return std::pair<bool, MemoryReference>(false, m);
 }
+
+RandomPageReplacer::RandomPageReplacer() : PageTable() {}
+
+RandomPageReplacer::RandomPageReplacer(const RandomPageReplacer &other) {
+    if(this == &other) {
+        return;
+    }
+    *this = other;
+}
+
+RandomPageReplacer &RandomPageReplacer::operator=(const RandomPageReplacer &other) {
+    PageTable::operator=(other);
+    return *this;
+}
+
+RandomPageReplacer::~RandomPageReplacer() {}

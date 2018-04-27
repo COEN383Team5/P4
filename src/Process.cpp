@@ -29,9 +29,9 @@ bool Process::requestPage() {
         }
     }
     lastReference = page;
-    std::pair<bool, MemoryReference> refVal = pt->reference(page, id); 
-    references.push_back(refVal.second());
-    return refVal.first();
+    std::pair<bool, MemoryReference> refVal = ptHandler->reference(page, id); 
+    references.push_back(refVal.second);
+    return refVal.first;
 }
 
 Process::Process() {
@@ -43,7 +43,7 @@ Process::Process() {
     runTime = 0;
     hits = 0;
     misses = 0;
-    pageRequestHandle = NULL;
+    ptHandler = NULL;
 }
 
 Process::Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, PageTable *pt) {
@@ -55,7 +55,7 @@ Process::Process(const int &id, const int &totalPageSize, const double &arrivalT
     lastReference = -1;
     hits = 0;
     misses = 0;
-    this->pt = pt;
+    ptHandler = pt;
 }
 
 int Process::getId() const {
@@ -78,7 +78,7 @@ int Process::getTimeRemaining() const {
     return duration-runTime;
 }
 
-int Process:getHits() const {
+int Process::getHits() const {
     return hits;
 }
 
@@ -109,10 +109,10 @@ void Process::printSwapStuff(const double &timestamp, const std::string &memoryM
     }
     char stringToPrint[512];
     snprintf(stringToPrint, 512, "%2.1f: Process %3d %s pages=%2d duration=%dseconds", timestamp, id, enterExit.c_str(), totalPageSize, duration);
-    std::cout << stringToPrint << memoryMap;
+    std::cout << stringToPrint << memoryMap << std::endl;
 }
 
-void Process:printMemoryReferences() const {
+void Process::printMemoryReferences() const {
     std::cout << "Process " << id << " references:\n ";
     for(unsigned int i = 0; i < references.size(); i++) {
         std::cout << references[i] << std::endl;
@@ -128,21 +128,21 @@ std::ostream &operator<<(std::ostream &os, const Process &p) {
 
 /* helper function to quick sort  
  */
-int partition(std::vector<Process> *vec, const int &low, const int &high) {
+int partition(Process *vec, const int &low, const int &high) {
     Process temp;
     int i = (low-1); 
-    double pivotVal = (*vec)[high].getArrivalTime();
+    double pivotVal = vec[high].getArrivalTime();
     for(int j = low; j < high; j++) {
-        if((*vec)[j].getArrivalTime() <= pivotVal) {
+        if(vec[j].getArrivalTime() <= pivotVal) {
             i++;
-            temp = (*vec)[j];
-            (*vec)[j] = (*vec)[i];
-            (*vec)[i] = temp;
+            temp = vec[j];
+            vec[j] = vec[i];
+            vec[i] = temp;
         }
     }
-    temp = (*vec)[i+1];
-    (*vec)[i+1] = (*vec)[high];
-    (*vec)[high] = temp;
+    temp = vec[i+1];
+    vec[i+1] = vec[high];
+    vec[high] = temp;
     return i+1;
 }
 
@@ -154,7 +154,7 @@ int partition(std::vector<Process> *vec, const int &low, const int &high) {
  * @param high
  *      the high index to sort to
  */
-void quickSort(std::vector<Process> *vec, const int &low, const int &high) {
+void quickSort(Process *vec, const int &low, const int &high) {
     if(low < high) {
         int pivot = partition(vec, low, high);
         quickSort(vec, low, pivot-1);
@@ -164,12 +164,12 @@ void quickSort(std::vector<Process> *vec, const int &low, const int &high) {
 
 /* convience function to call quicksort
  */
-inline void sortByArrivalTime(std::vector<Process> *vec) {
-    quickSort(vec, 0, vec->size());
+inline void sortByArrivalTime(Process *vec) {
+    quickSort(vec, 0, NUM_PROCS_TO_MAKE-1);
 }
 
-std::vector<Process> generateProcesses(PageTable *pt) {
-    std::vector<Process> retval;
+Process *generateProcesses(PageTable *pt) {
+    Process *retval = new Process[NUM_PROCS_TO_MAKE];
     unsigned long long pageSizeIndex;
     double  arrivalTime;
     int duration;
@@ -181,8 +181,8 @@ std::vector<Process> generateProcesses(PageTable *pt) {
         arrivalTime = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%600)/10.0;
         duration = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%5)+1;
         pageSizeIndex = ((a*rand()+b)%PRIME_FOR_UNIFORMITY)%NUM_PAGE_OPTIONS;
-        retval.emplace_back(i, pageSizes[pageSizeIndex], arrivalTime, duration, pt);
+        retval[i] = Process(i, pageSizes[pageSizeIndex], arrivalTime, duration, pt);
     }
-    sortByArrivalTime(&retval);
+    sortByArrivalTime(retval);
     return retval;
 }
