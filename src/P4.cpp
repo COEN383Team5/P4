@@ -33,19 +33,20 @@ void runAlg(PageTable *handler) {
         }
         if(runningProcs.size() > 0) {
             // if there are procs that are paged in and need to run, run them
-            std::vector<std::vector<Process *>::iterator> finishedProcs;
             for(std::vector<Process *>::iterator it = runningProcs.begin(); it != runningProcs.end(); ++it) {
-                if((*it)->giveTime()) {
+                if((*it)->getTimeRemaining() > 0 && (*it)->giveTime()) {
                     // the process has run its duration
                     (*it)->printSwapStuff(curTime, handler->getMemoryMap());
-                    finishedProcs.push_back(it);
                     numCompleted++;
                 }
             }
-            for(unsigned int i = 0; i < finishedProcs.size(); i++) {
-                // removes procs that have finished executing
-                runningProcs.erase(finishedProcs[i]);
+            std::vector<Process *> newRunningProcs;
+            for(unsigned int i = 0; i < runningProcs.size(); i++) {
+                if(runningProcs[i]->getTimeRemaining() > 0) {
+                    newRunningProcs.push_back(runningProcs[i]);
+                }
             }
+            runningProcs = newRunningProcs;
         }
     }
     std::cout << "Number of completed processes=" << numCompleted << std::endl;

@@ -74,7 +74,7 @@ int Process::getDuration() const {
     return duration;
 }
 
-int Process::getTimeRemaining() const {
+double Process::getTimeRemaining() const {
     return duration-runTime;
 }
 
@@ -121,7 +121,7 @@ void Process::printMemoryReferences() const {
 
 std::ostream &operator<<(std::ostream &os, const Process &p) {
     char stringToPrint[512];
-    snprintf(stringToPrint, 512, "Process %3d:\tatime=%2.1f\ttotalPageSize=%2d\tduration=%d\trunTime=%2.1f\thits=%3d\tmisses=%3d\tlastReference=%d", p.id, p.arrivalTime, p.totalPageSize, p.duration, p.runTime, p.hits, p.misses, p.lastReference);
+    snprintf(stringToPrint, 512, "Process %3d:\tatime=%2.1f\ttotalPageSize=%2d\tduration=%d\trunTime=%2.1f\thits=%3d\tmisses=%3d\thits/misses=%.4f\tlastReference=%d", p.id, p.arrivalTime, p.totalPageSize, p.duration, p.runTime, p.hits, p.misses, p.hits/(double)p.misses, p.lastReference);
     os << stringToPrint;
     return os;
 }

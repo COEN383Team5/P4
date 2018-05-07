@@ -8,7 +8,6 @@
 #include "MemoryReference.h"
 #include "PageTable.h"
 
-//#define NUM_PROCS_TO_MAKE 150
 #define NUM_PROCS_TO_MAKE 150
 #define NUM_PAGE_OPTIONS 4
 // http://primes.utm.edu/lists/2small/0bit.html
@@ -47,7 +46,7 @@ public:
     int getTotalPageSize() const;
     double getArrivalTime() const;
     int getDuration() const;
-    int getTimeRemaining() const;
+    double getTimeRemaining() const;
     int getHits() const;
     int getMisses() const;
     double getRunTime() const;
