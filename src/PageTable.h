@@ -3,6 +3,7 @@
 
 #include <string>
 #include <utility>
+#include <mutex>
 #include "MemoryReference.h"
 
 #define NUM_PAGE_TABLE_ENTRIES 100
@@ -15,6 +16,7 @@ struct PageTableEntry {
 
 class PageTable {
 protected:
+    std::mutex tableMut;
     PageTableEntry *table;
     int numFree;
     
@@ -52,7 +54,7 @@ protected:
      *      that bool will always be false because this function only occurs when there is a page fault
      *      the second part of the pair is a MemoryReference object that has all the information about the reference
      */
-    virtual std::pair<bool, MemoryReference> algImpl(const int &pageNum, const int &id) = 0;
+    virtual std::pair<bool, MemoryReference> algImpl(const int &pageNum, const int &id, const double &timeStamp) = 0;
 
 public:
     PageTable();
@@ -64,6 +66,7 @@ public:
 
     /* handles a reference to a page by a process
      * a pointer to this function should be passed to the constructor of Process
+     * This function has a critical section which may alter pageTable
      * @param pageNum
      *      the virtual page number that the processes is requesting for
      * @param id
@@ -71,7 +74,7 @@ public:
      * @retval a pair containing a bool that represents if the page was already in memory
      *      and a MemoryReference object that has all the information about the reference
      */
-    std::pair<bool, MemoryReference> reference(const int &pageNum, const int &id);
+    std::pair<bool, MemoryReference> reference(const int &pageNum, const int &id, const double &timeStamp);
 };
 
 #endif

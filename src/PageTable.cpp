@@ -70,23 +70,26 @@ int PageTable::getNumFree() const {
     return numFree;
 }
 
-std::pair<bool, MemoryReference> PageTable::reference(const int &pageNum, const int &id) {
+std::pair<bool, MemoryReference> PageTable::reference(const int &pageNum, const int &id, const double &timeStamp) {
     if(pageNum == 0) {
-        return std::pair<bool, MemoryReference>(true, MemoryReference(id, pageNum, -1, -1, 0));
+        return std::pair<bool, MemoryReference>(true, MemoryReference(timeStamp, id, pageNum, -1, -1, 0));
     }
+    std::unique_lock<std::mutex> lock(tableMut);
     int index;
     if((index = isInTable(pageNum, id)) == -1) {
         int freePage;
         if((freePage = getFreePage()) == -1) {
             // page fault, need to replace a page
-            return algImpl(pageNum, id);
+            std::pair<bool, MemoryReference> retval = algImpl(pageNum, id, timeStamp);
+            std::cout << retval.second << std::endl;
+            return retval;
         } else {
             table[freePage].numRefs = 0;
             setPage(freePage, pageNum, id);
-            return std::pair<bool, MemoryReference>(false, MemoryReference(id, pageNum, -1, -1, freePage));
+            return std::pair<bool, MemoryReference>(false, MemoryReference(timeStamp, id, pageNum, -1, -1, freePage));
         }
     } else {
         table[index].numRefs++;
-        return std::pair<bool, MemoryReference>(true, MemoryReference(id, pageNum, -1, -1, index));
+        return std::pair<bool, MemoryReference>(true, MemoryReference(timeStamp, id, pageNum, -1, -1, index));
     }
 }

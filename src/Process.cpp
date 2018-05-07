@@ -1,9 +1,10 @@
 #include <cstring>
+#include <chrono>
 #include "Process.h"
 
 const int pageSizes[] = {5, 11, 17, 31};
 
-bool Process::requestPage() {
+bool Process::requestPage(const double &timeStamp) {
     int page;
     if(lastReference == -1) {
         // first reference
@@ -29,9 +30,15 @@ bool Process::requestPage() {
         }
     }
     lastReference = page;
-    std::pair<bool, MemoryReference> refVal = ptHandler->reference(page, id); 
+    std::pair<bool, MemoryReference> refVal = ptHandler->reference(page, id, timeStamp); 
     references.push_back(refVal.second);
     return refVal.first;
+}
+
+bool Process::giveTime(const double &timeStamp) {
+    requestPage(timeStamp) ? hits++ : misses++;
+    runTime += .1;
+    return (int)runTime != duration;
 }
 
 Process::Process() {
@@ -94,10 +101,16 @@ std::vector<MemoryReference> Process::getReferences() const {
     return references;
 }
 
-bool Process::giveTime() {
-    requestPage() ? hits++ : misses++;
-    runTime += .1;
-    return (int)runTime == duration;
+void Process::start(double curTime) {
+    int iters = 0;
+    printSwapStuff(curTime, ptHandler->getMemoryMap());
+    // TODO this time is not correlated to the real time, just this threads time, does that matter? would need barrier to solve
+    while(giveTime(curTime+.1*iters)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        iters++;
+    }
+    // TODO this time is not correlated to the real time, just this threads time, does that matter? would need barrier to solve
+    printSwapStuff(curTime+.1*iters, ptHandler->getMemoryMap());
 }
 
 void Process::printSwapStuff(const double &timestamp, const std::string &memoryMap) const {
@@ -109,10 +122,12 @@ void Process::printSwapStuff(const double &timestamp, const std::string &memoryM
     }
     char stringToPrint[512];
     snprintf(stringToPrint, 512, "%2.1f: Process %3d %s pages=%2d duration=%dseconds\n", timestamp, id, enterExit.c_str(), totalPageSize, duration);
+    std::unique_lock<std::mutex> lock(stdoutMut);
     std::cout << stringToPrint << memoryMap << std::endl;
 }
 
 void Process::printMemoryReferences() const {
+    std::unique_lock<std::mutex> lock(stdoutMut);
     std::cout << "Process " << id << " references:\n ";
     for(unsigned int i = 0; i < references.size(); i++) {
         std::cout << references[i] << std::endl;
@@ -122,6 +137,7 @@ void Process::printMemoryReferences() const {
 std::ostream &operator<<(std::ostream &os, const Process &p) {
     char stringToPrint[512];
     snprintf(stringToPrint, 512, "Process %3d:\tatime=%2.1f\ttotalPageSize=%2d\tduration=%d\trunTime=%2.1f\thits=%3d\tmisses=%3d\thits/misses=%.4f\tlastReference=%d", p.id, p.arrivalTime, p.totalPageSize, p.duration, p.runTime, p.hits, p.misses, p.hits/(double)p.misses, p.lastReference);
+    std::unique_lock<std::mutex> lock(stdoutMut);
     os << stringToPrint;
     return os;
 }

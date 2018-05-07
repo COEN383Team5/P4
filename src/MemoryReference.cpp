@@ -9,7 +9,7 @@ MemoryReference::MemoryReference() {
     pageInMemory = -1;
 } 
 
-MemoryReference::MemoryReference(const int &pageReferenced, const int &processId, const int &evictedPage, const int &evictedProc, const int &pageInMemory) {
+MemoryReference::MemoryReference(const double &timeStamp, const int &pageReferenced, const int &processId, const int &evictedPage, const int &evictedProc, const int &pageInMemory) {
     this->timeStamp = timeStamp;
     this->processId = processId;
     this->pageReferenced = pageReferenced;
@@ -24,7 +24,10 @@ MemoryReference::MemoryReference(const int &pageReferenced, const int &processId
 }
 
 std::ostream &operator<<(std::ostream &os, const MemoryReference &m) {
-    os << m.timeStamp << ": Process " << m.processId << "\tpageRefd="
-        << m.pageReferenced << "\tpageInMemory=" << m.pageInMemory << "\tevicted=" << m.evicted;
+    std::unique_lock<std::mutex> lock(stdoutMut);
+    os << m.timeStamp << ": Process " << m.processId 
+        << " referenced virtual page " << m.pageReferenced 
+        << " which maps to physical page " << m.pageInMemory 
+        << " and evicted " << m.evicted;
     return os;
 }

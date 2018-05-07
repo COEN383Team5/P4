@@ -5,6 +5,8 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <thread>
+#include "Log.h"
 #include "MemoryReference.h"
 #include "PageTable.h"
 
@@ -37,7 +39,13 @@ class Process {
      * @retval true if the page was already in memory
      *      false if the requested page caused a miss
      */
-    bool requestPage();
+    bool requestPage(const double &timeStamp);
+
+    /* decrements time remaining and generates a page request
+     * @retval false if the process has no time remaining
+     *      true if the process still needs to run
+     */
+    bool giveTime(const double &timeStamp);
 public:
     Process();
     Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, PageTable *pt);
@@ -52,14 +60,15 @@ public:
     double getRunTime() const;
     std::vector<MemoryReference> getReferences() const;
 
-    /* decrements time remaining and generates a page request
-     * @retval true if the process has no time remaining
-     *      false if the process still needs to run
+    /* begins the processes thread of execution, which references pages every 100ms
+     * @param curTime
+     *      the current time when this process is started
      */
-    bool giveTime();
+    void start(double curTime);
 
     /* prints the information about a process when it enters or exits memory
      * this should be run by the simulator when the process begins and finishes execution
+     * makes use of stdoutMut defined in Log.h and initialized in P4
      * @param timestamp
      *      the current time for the simulator
      * @param memoryMap
@@ -69,8 +78,13 @@ public:
     void printSwapStuff(const double &timestamp, const std::string &memoryMap) const;
 
     /* prints the information about a process' memory references
+     * makes use of stdoutMut defined in Log.h and initialized in P4
      */
     void printMemoryReferences() const;
+
+    /* prints all of the information pertaining to this process
+     * makes use of stdoutMut defined in Log.h and initialized in P4
+     */
     friend std::ostream &operator<<(std::ostream &o, const Process &p);
 };
 
