@@ -10,26 +10,53 @@ int PageTable::isInTable(const int &pageNum, const int &id) const {
     return -1;
 }
 
-int PageTable::getFreePage() const {
-    for(int i = 0; i < NUM_PAGE_TABLE_ENTRIES; i++) {
-        if(!table[i].valid) {
-            return i;
-        }
+PageTableEntry *PageTable::getFreePage() {
+    if(freePages != NULL) {
+        FreePage *temp = freePages;
+        freePages = freePages->next;
+        numFree--;
+        return temp->entry;
     }
-    return -1;
+    return NULL;
 }
 
-void PageTable::setPage(const int &page, const int &pageNum, const int &id) {
-    table[page].referenced = true;
-    table[page].numRefs++;
-    table[page].refTime = curTime;
-    table[page].ownerId = id;
-    table[page].ownerPage = pageNum;
-    table[page].valid = true;
+void PageTable::setPage(PageTableEntry *page, const int &pageNum, const int &id) {
+    page->referenced = true;
+    page->numRefs++;
+    page->refTime = curTime;
+    page->ownerId = id;
+    page->ownerPage = pageNum;
+    page->valid = true;
+}
+
+void PageTable::addToTail(PageTableEntry *page) {
+    if(tailPtr == NULL) {
+        freePages = new FreePage();
+        tailPtr = freePages;
+    } else {
+        tailPtr->next = new FreePage();
+        tailPtr = tailPtr->next;
+    }
+    tailPtr->entry = page;
+    tailPtr->next = NULL;
+    numFree++;
 }
 
 PageTable::PageTable() {
     table = new PageTableEntry[NUM_PAGE_TABLE_ENTRIES];
+    freePages = new FreePage();
+    freePages->entry = &table[0];
+    freePages->next = NULL;
+    FreePage **temp = &freePages->next;
+    for(int i = 1; i < NUM_PAGE_TABLE_ENTRIES; i++) {
+        *temp = new FreePage();
+        (*temp)->entry = &table[i];
+        (*temp)->next = NULL;
+        if(i == NUM_PAGE_TABLE_ENTRIES-1) {
+            tailPtr = *temp;
+        }
+        temp = &((*temp)->next);
+    }
     numFree = NUM_PAGE_TABLE_ENTRIES;
 }
 
@@ -45,11 +72,25 @@ PageTable &PageTable::operator=(const PageTable &other) {
     table = new PageTableEntry[NUM_PAGE_TABLE_ENTRIES];
     memcpy(table, other.table, NUM_PAGE_TABLE_ENTRIES*sizeof(PageTableEntry));
     numFree = other.numFree;
+    freePages = other.freePages;
+    FreePage *thisTemp = freePages, *otherTemp = other.freePages;
+    while(otherTemp != NULL) {
+        thisTemp->entry = otherTemp->entry;
+        thisTemp->next = otherTemp->next;
+        thisTemp = thisTemp->next;
+        otherTemp = otherTemp->next;
+    }
     return *this;
 }
 
 PageTable::~PageTable() {
     delete[] table;
+    while(freePages != NULL) {
+        FreePage *temp = freePages->next;
+        delete freePages;
+        freePages = temp;
+    }
+    freePages = NULL;
 }
 
 std::string PageTable::getMemoryMap() const {
@@ -74,22 +115,33 @@ std::pair<bool, MemoryReference> PageTable::reference(const int &pageNum, const 
     if(pageNum == 0) {
         return std::pair<bool, MemoryReference>(true, MemoryReference(timeStamp, id, pageNum, -1, -1, 0));
     }
-    std::unique_lock<std::mutex> lock(tableMut);
+    std::pair<bool, MemoryReference> retval;
     int index;
+    std::unique_lock<std::mutex> lock(tableMut);
     if((index = isInTable(pageNum, id)) == -1) {
-        int freePage;
-        if((freePage = getFreePage()) == -1) {
+        PageTableEntry *freePage;
+        if((freePage = getFreePage()) == NULL) {
             // page fault, need to replace a page
-            std::pair<bool, MemoryReference> retval = algImpl(pageNum, id, timeStamp);
+            retval = algImpl(pageNum, id, timeStamp);
             std::cout << retval.second << std::endl;
-            return retval;
         } else {
-            table[freePage].numRefs = 0;
+            freePage->numRefs = 0;
             setPage(freePage, pageNum, id);
-            return std::pair<bool, MemoryReference>(false, MemoryReference(timeStamp, id, pageNum, -1, -1, freePage));
+            index = isInTable(freePage->ownerPage, freePage->ownerId);
+            retval = std::pair<bool, MemoryReference>(false, MemoryReference(timeStamp, id, pageNum, -1, -1, index));
         }
     } else {
         table[index].numRefs++;
-        return std::pair<bool, MemoryReference>(true, MemoryReference(timeStamp, id, pageNum, -1, -1, index));
+        retval = std::pair<bool, MemoryReference>(true, MemoryReference(timeStamp, id, pageNum, -1, -1, index));
+    }
+    return retval;
+}
+
+void PageTable::swapOff(const int &pid) {
+    for(int i = 0; i < NUM_PAGE_TABLE_ENTRIES; i++) {
+        if(table[i].ownerId == pid) {
+            table[i].valid = false;
+            addToTail(&table[i]);
+        }
     }
 }

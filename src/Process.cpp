@@ -110,6 +110,7 @@ void Process::start(double curTime) {
         iters++;
     }
     // TODO this time is not correlated to the real time, just this threads time, does that matter? would need barrier to solve
+    ptHandler->swapOff(id);
     printSwapStuff(curTime+.1*iters, ptHandler->getMemoryMap());
 }
 

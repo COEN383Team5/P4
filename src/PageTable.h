@@ -14,10 +14,17 @@ struct PageTableEntry {
     int ownerId, ownerPage, numRefs;
 };
 
+struct FreePage {
+    PageTableEntry *entry;
+    FreePage *next;
+};
+
 class PageTable {
 protected:
     std::mutex tableMut;
+    // table and freePages share memory
     PageTableEntry *table;
+    FreePage *freePages, *tailPtr;
     int numFree;
     
     /* determines if the page requested by the process is in the table
@@ -30,19 +37,25 @@ protected:
     int isInTable(const int &pageNum, const int &id) const;
 
     /* finds a free page in the page table
-     * @retval returns the index to a free page in table, or -1 if there are no free pages
+     * @retval returns a pointer to a free page in table, or NULL if there are no free pages
      */
-    int getFreePage() const;
+    PageTableEntry *getFreePage();
 
     /* sets the relavent variables for a page being referenced for the first time
      * @param page 
-     *      the index in table for the page being referenced
+     *      a pointer to a page in table to be referenced
      * @param pageNum
      *      the virtual pageNumber, the owner's page number
      * @param id
      *      the id of the requesting process
      */
-    void setPage(const int &page, const int &pageNum, const int &id);
+    void setPage(PageTableEntry *page, const int &pageNum, const int &id);
+
+    /* adds the page to the end of freePages
+     * @param page
+     *      a pointer to the page to add to the end of freePages
+     */
+    void addToTail(PageTableEntry *page);
 
     /* This function needs to be implemented in classes that inherit this one
      * and needs to preform the tasks of an algorithm (FIFO, LRU, LFU, MFU, random)
@@ -75,6 +88,12 @@ public:
      *      and a MemoryReference object that has all the information about the reference
      */
     std::pair<bool, MemoryReference> reference(const int &pageNum, const int &id, const double &timeStamp);
+
+    /* invalidates all pages belonging to doneProcess and adds them to the free list
+     * @param doneProcess
+     *      a pointer to the process who is done executing and will have its pages free
+     */
+    void swapOff(const int &pid); 
 };
 
 #endif
