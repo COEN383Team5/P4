@@ -17,9 +17,8 @@ PageTable *parseArguments(int argc, char *argv[]) {
     return handler;
 }
 
-void runAlg(PageTable *handler) {
+void runAlg(PageTable *handler, Process *procs) {
     int procsIndex = 0, numCompleted = 0;
-    Process *procs = generateProcesses(handler);
     std::vector<Process *> runningProcs;
     for(unsigned int i = 0; i < NUM_PROCS_TO_MAKE; i++) {
         std::cout << procs[i] << std::endl;
@@ -53,14 +52,14 @@ void runAlg(PageTable *handler) {
     for(int i = 0; i < NUM_PROCS_TO_MAKE; i++) {
         std::cout << procs[i] << std::endl;
     }
-    delete[] procs;
 }
 
-// TODO handle command line arguments for different handlers
 int main(int argc, char *argv[]) {
     srand(time(NULL));
     PageTable *handler = parseArguments(argc, argv);
-    runAlg(handler);
+    Process *procs = generateProcesses(handler);
+    runAlg(handler, procs);
     delete handler;
+    delete[] procs;
     return 0;
 }
