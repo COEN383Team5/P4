@@ -10,6 +10,8 @@
 
 double curTime;
 
+// TODO run 5 times and print averages
+// TODO must say what processes stole which pages from which processes
 // TODO define other handlers
 PageTable *parseArguments(int argc, char *argv[]) {
     PageTable *handler;
@@ -28,6 +30,7 @@ void runAlg(PageTable *handler, Process *procs) {
         while(handler->getNumFree() >= 4 && procsIndex < NUM_PROCS_TO_MAKE && procs[procsIndex].getArrivalTime() <= curTime) {
             // while there are free pages, and the next proc has arrived
             procs[procsIndex].printSwapStuff(curTime, handler->getMemoryMap());
+            // TODO just start process's thread instead of doing sequential execution
             runningProcs.push_back(&procs[procsIndex++]);
         }
         if(runningProcs.size() > 0) {
