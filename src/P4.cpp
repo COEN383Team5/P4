@@ -8,6 +8,7 @@
 #include "MFUPageReplacer.h"
 #include "LFUPageReplacer.h"
 #include "RandomPageReplacer.h"
+#include "FIFOPageReplacer.h"
 
 // in seconds
 #define RUN_TIME 60
@@ -20,7 +21,7 @@ std::mutex stdoutMut;
 // TODO define other handlers
 PageTable *parseArguments(int argc, char *argv[]) {
     PageTable *handler;
-    handler = new LFUPageReplacer();
+    handler = new FIFOPageReplacer();
     return handler;
 }
 
