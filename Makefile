@@ -1,5 +1,5 @@
 CXX			:= g++
-CXXFLAGS	:= -Wall -g
+CXXFLAGS	:= -Wall -g -std=c++11
 SRC_SUFFIX	:= cpp
 SRCS		:= $(patsubst src/%.$(SRC_SUFFIX), %.$(SRC_SUFFIX), $(wildcard src/*.$(SRC_SUFFIX)))
 LIBS		:= -lpthread
