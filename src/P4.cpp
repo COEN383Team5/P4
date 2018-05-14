@@ -5,6 +5,8 @@
 #include "Log.h"
 #include "MemoryReference.h"
 #include "Process.h"
+#include "MFUPageReplacer.h"
+#include "LFUPageReplacer.h"
 #include "RandomPageReplacer.h"
 
 // in seconds
@@ -18,7 +20,7 @@ std::mutex stdoutMut;
 // TODO define other handlers
 PageTable *parseArguments(int argc, char *argv[]) {
     PageTable *handler;
-    handler = new RandomPageReplacer();
+    handler = new LFUPageReplacer();
     return handler;
 }
 
