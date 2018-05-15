@@ -13,8 +13,8 @@
 #define NUM_PROCS_TO_MAKE 150
 #define NUM_PAGE_OPTIONS 4
 // http://primes.utm.edu/lists/2small/0bit.html
-// this is the prime (2^8)-5
-#define PRIME_FOR_UNIFORMITY 251
+// this is the prime (2^15)-19
+#define PRIME_FOR_UNIFORMITY 32749 
 #define INIT_PAGE 0
 
 extern const int pageSizes[];

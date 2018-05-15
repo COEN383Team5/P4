@@ -12,12 +12,20 @@ int PageTable::isInTable(const int &pageNum, const int &id) const {
 }
 
 PageTableEntry *PageTable::getFreePage() {
+    if(freePages == tailPtr && tailPtr != NULL) {
+        FreePage *temp = freePages;
+        tailPtr = NULL;
+        freePages = NULL;
+        numFree--;
+        return temp->entry;
+    }
     if(freePages != NULL) {
         FreePage *temp = freePages;
         freePages = freePages->next;
         numFree--;
         return temp->entry;
     }
+    std::cerr << "out of memory, " << numFree << std::endl;
     return NULL;
 }
 
@@ -35,8 +43,12 @@ void PageTable::addToTail(PageTableEntry *page) {
         freePages = new FreePage();
         tailPtr = freePages;
     } else {
-        tailPtr->next = new FreePage();
-        tailPtr = tailPtr->next;
+        if(tailPtr->next == NULL) {
+            tailPtr->next = new FreePage();
+            tailPtr = tailPtr->next;
+        } else {
+            std::cerr << "weird" << std::endl;
+        }
     }
     tailPtr->entry = page;
     tailPtr->next = NULL;

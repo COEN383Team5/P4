@@ -193,8 +193,7 @@ Process *generateProcesses(PageTable *pt) {
     unsigned long long a = rand()%(PRIME_FOR_UNIFORMITY-2)+1, b = rand()%PRIME_FOR_UNIFORMITY;
     for(int i = 0; i < NUM_PROCS_TO_MAKE; i++) {
         // 60 seconds with 100ms resolution
-        //arrivalTime = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%600)/10.0;
-        arrivalTime = (rand()%600)/10.0;
+        arrivalTime = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%600)/10.0;
         std::cout << "atime " << arrivalTime << std::endl;
         duration = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%5)+1;
         pageSizeIndex = ((a*rand()+b)%PRIME_FOR_UNIFORMITY)%NUM_PAGE_OPTIONS;
