@@ -8,7 +8,7 @@
 
 #define NUM_PAGE_TABLE_ENTRIES 100
 
-int reqNum = 1;
+extern int reqNum;
 
 struct PageTableEntry {
     bool valid, dirty, referenced;

@@ -1,7 +1,7 @@
 #include <cstring>
 #include "PageTable.h"
 
-//int reqNum = 1;
+int reqNum = 1;
 
 int PageTable::isInTable(const int &pageNum, const int &id) const {
     for(int i = 0; i < NUM_PAGE_TABLE_ENTRIES; i++) {
