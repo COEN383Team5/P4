@@ -39,13 +39,13 @@ class Process {
      * @retval true if the page was already in memory
      *      false if the requested page caused a miss
      */
-    bool requestPage(const double &timeStamp);
+    bool requestPage();
 
     /* decrements time remaining and generates a page request
      * @retval false if the process has no time remaining
      *      true if the process still needs to run
      */
-    bool giveTime(const double &timeStamp);
+    bool giveTime();
 public:
     Process();
     Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, PageTable *pt);
@@ -69,13 +69,11 @@ public:
     /* prints the information about a process when it enters or exits memory
      * this should be run by the simulator when the process begins and finishes execution
      * makes use of stdoutMut defined in Log.h and initialized in P4
-     * @param timestamp
-     *      the current time for the simulator
      * @param memoryMap
      *      the string representing the state of memory 
      *      this should be generated from the memory controller
      */
-    void printSwapStuff(const double &timestamp, const std::string &memoryMap) const;
+    void printSwapStuff(const std::string &memoryMap) const;
 
     /* prints the information about a process' memory references
      * makes use of stdoutMut defined in Log.h and initialized in P4

@@ -4,7 +4,7 @@
 
 const int pageSizes[] = {5, 11, 17, 31};
 
-bool Process::requestPage(const double &timeStamp) {
+bool Process::requestPage() {
     int page;
     if(lastReference == -1) {
         // first reference
@@ -30,13 +30,13 @@ bool Process::requestPage(const double &timeStamp) {
         }
     }
     lastReference = page;
-    std::pair<bool, MemoryReference> refVal = ptHandler->reference(page, id, timeStamp); 
+    std::pair<bool, MemoryReference> refVal = ptHandler->reference(page, id); 
     references.push_back(refVal.second);
     return refVal.first;
 }
 
-bool Process::giveTime(const double &timeStamp) {
-    requestPage(timeStamp) ? hits++ : misses++;
+bool Process::giveTime() {
+    requestPage() ? hits++ : misses++;
     runTime += .1;
     return (int)runTime != duration;
 }
@@ -103,18 +103,16 @@ std::vector<MemoryReference> Process::getReferences() const {
 
 void Process::start(double curTime) {
     int iters = 0;
-    printSwapStuff(curTime, ptHandler->getMemoryMap());
-    // TODO this time is not correlated to the real time, just this threads time, does that matter? would need barrier to solve
-    while(giveTime(curTime+.1*iters)) {
+    printSwapStuff(ptHandler->getMemoryMap());
+    while(giveTime()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         iters++;
     }
-    // TODO this time is not correlated to the real time, just this threads time, does that matter? would need barrier to solve
     ptHandler->swapOff(id);
-    printSwapStuff(curTime+.1*iters, ptHandler->getMemoryMap());
+    printSwapStuff(ptHandler->getMemoryMap());
 }
 
-void Process::printSwapStuff(const double &timestamp, const std::string &memoryMap) const {
+void Process::printSwapStuff(const std::string &memoryMap) const {
     std::string enterExit;
     if(getTimeRemaining() > 0) {
         enterExit = "enter";
@@ -122,7 +120,7 @@ void Process::printSwapStuff(const double &timestamp, const std::string &memoryM
         enterExit = "exit";
     }
     char stringToPrint[512];
-    snprintf(stringToPrint, 512, "%2.1f: Process %3d %s pages=%2d duration=%dseconds\n", timestamp, id, enterExit.c_str(), totalPageSize, duration);
+    snprintf(stringToPrint, 512, "%2.1f: Process %3d %s pages=%2d duration=%dseconds\n", getTime(), id, enterExit.c_str(), totalPageSize, duration);
     std::unique_lock<std::mutex> lock(stdoutMut);
     std::cout << stringToPrint << memoryMap << std::endl;
 }
@@ -195,7 +193,9 @@ Process *generateProcesses(PageTable *pt) {
     unsigned long long a = rand()%(PRIME_FOR_UNIFORMITY-2)+1, b = rand()%PRIME_FOR_UNIFORMITY;
     for(int i = 0; i < NUM_PROCS_TO_MAKE; i++) {
         // 60 seconds with 100ms resolution
-        arrivalTime = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%600)/10.0;
+        //arrivalTime = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%600)/10.0;
+        arrivalTime = (rand()%600)/10.0;
+        std::cout << "atime " << arrivalTime << std::endl;
         duration = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%5)+1;
         pageSizeIndex = ((a*rand()+b)%PRIME_FOR_UNIFORMITY)%NUM_PAGE_OPTIONS;
         retval[i] = Process(i, pageSizes[pageSizeIndex], arrivalTime, duration, pt);

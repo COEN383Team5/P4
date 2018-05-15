@@ -1,5 +1,10 @@
 #include <cstring>
+#include <chrono>
 #include "MemoryReference.h"
+
+double getTime() {
+    return (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()/1000.0)-startTime;
+}
 
 MemoryReference::MemoryReference() {
     timeStamp = -1;
@@ -9,8 +14,8 @@ MemoryReference::MemoryReference() {
     pageInMemory = -1;
 } 
 
-MemoryReference::MemoryReference(const double &timeStamp, const int &pageReferenced, const int &processId, const int &evictedPage, const int &evictedProc, const int &pageInMemory) {
-    this->timeStamp = timeStamp;
+MemoryReference::MemoryReference(const int &pageReferenced, const int &processId, const int &evictedPage, const int &evictedProc, const int &pageInMemory) {
+    this->timeStamp = getTime();
     this->processId = processId;
     this->pageReferenced = pageReferenced;
     if(evictedPage != -1) {

@@ -67,7 +67,7 @@ protected:
      *      that bool will always be false because this function only occurs when there is a page fault
      *      the second part of the pair is a MemoryReference object that has all the information about the reference
      */
-    virtual std::pair<bool, MemoryReference> algImpl(const int &pageNum, const int &id, const double &timeStamp) = 0;
+    virtual std::pair<bool, MemoryReference> algImpl(const int &pageNum, const int &id) = 0;
 
 public:
     PageTable();
@@ -87,7 +87,7 @@ public:
      * @retval a pair containing a bool that represents if the page was already in memory
      *      and a MemoryReference object that has all the information about the reference
      */
-    std::pair<bool, MemoryReference> reference(const int &pageNum, const int &id, const double &timeStamp);
+    std::pair<bool, MemoryReference> reference(const int &pageNum, const int &idp);
 
     /* invalidates all pages belonging to doneProcess and adds them to the free list
      * @param doneProcess

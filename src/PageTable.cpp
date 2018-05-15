@@ -1,4 +1,5 @@
 #include <cstring>
+#include <ctime>
 #include "PageTable.h"
 
 int PageTable::isInTable(const int &pageNum, const int &id) const {
@@ -23,7 +24,7 @@ PageTableEntry *PageTable::getFreePage() {
 void PageTable::setPage(PageTableEntry *page, const int &pageNum, const int &id) {
     page->referenced = true;
     page->numRefs++;
-    page->refTime = curTime;
+    page->refTime = getTime()-startTime;
     page->ownerId = id;
     page->ownerPage = pageNum;
     page->valid = true;
@@ -111,9 +112,9 @@ int PageTable::getNumFree() const {
     return numFree;
 }
 
-std::pair<bool, MemoryReference> PageTable::reference(const int &pageNum, const int &id, const double &timeStamp) {
+std::pair<bool, MemoryReference> PageTable::reference(const int &pageNum, const int &id) {
     if(pageNum == 0) {
-        return std::pair<bool, MemoryReference>(true, MemoryReference(timeStamp, id, pageNum, -1, -1, 0));
+        return std::pair<bool, MemoryReference>(true, MemoryReference(id, pageNum, -1, -1, 0));
     }
     std::pair<bool, MemoryReference> retval;
     int index;
@@ -122,17 +123,17 @@ std::pair<bool, MemoryReference> PageTable::reference(const int &pageNum, const 
         PageTableEntry *freePage;
         if((freePage = getFreePage()) == NULL) {
             // page fault, need to replace a page
-            retval = algImpl(pageNum, id, timeStamp);
+            retval = algImpl(pageNum, id);
             std::cout << retval.second << std::endl;
         } else {
             freePage->numRefs = 0;
             setPage(freePage, pageNum, id);
             index = isInTable(freePage->ownerPage, freePage->ownerId);
-            retval = std::pair<bool, MemoryReference>(false, MemoryReference(timeStamp, id, pageNum, -1, -1, index));
+            retval = std::pair<bool, MemoryReference>(false, MemoryReference(id, pageNum, -1, -1, index));
         }
     } else {
         table[index].numRefs++;
-        retval = std::pair<bool, MemoryReference>(true, MemoryReference(timeStamp, id, pageNum, -1, -1, index));
+        retval = std::pair<bool, MemoryReference>(true, MemoryReference(id, pageNum, -1, -1, index));
     }
     return retval;
 }
