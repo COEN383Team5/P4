@@ -1,6 +1,8 @@
 #include <cstring>
 #include "PageTable.h"
 
+//int reqNum = 1;
+
 int PageTable::isInTable(const int &pageNum, const int &id) const {
     for(int i = 0; i < NUM_PAGE_TABLE_ENTRIES; i++) {
         if(table[i].valid && table[i].ownerId == id && table[i].ownerPage == pageNum) {
@@ -27,15 +29,17 @@ void PageTable::setPage(PageTableEntry *page, const int &pageNum, const int &id)
     page->ownerId = id;
     page->ownerPage = pageNum;
     page->valid = true;
-    if(page->numRefs > 1) { //for every unique page request
+    if(page->numRefs < 2) { //for every unique page request
 	reqNum++;
 	page->requestNum = reqNum;
     }
     else {
 	for (size_t i = 1; i < NUM_PAGE_TABLE_ENTRIES; ++i) {
-		if(table[i].ownerPage == page->ownerPage)
+		if(table[i].ownerPage == page->ownerPage) {
     			page->requestNum = table[i].requestNum;
 			//if this page has been referenced before, match the requestNum
+			break;
+		}
 	}
     }
 }
