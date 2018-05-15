@@ -27,6 +27,17 @@ void PageTable::setPage(PageTableEntry *page, const int &pageNum, const int &id)
     page->ownerId = id;
     page->ownerPage = pageNum;
     page->valid = true;
+    if(page->numRefs > 1) { //for every unique page request
+	reqNum++;
+	page->requestNum = reqNum;
+    }
+    else {
+	for (size_t i = 1; i < NUM_PAGE_TABLE_ENTRIES; ++i) {
+		if(table[i].ownerPage == page->ownerPage)
+    			page->requestNum = table[i].requestNum;
+			//if this page has been referenced before, match the requestNum
+	}
+    }
 }
 
 void PageTable::addToTail(PageTableEntry *page) {

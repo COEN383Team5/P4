@@ -8,10 +8,12 @@
 
 #define NUM_PAGE_TABLE_ENTRIES 100
 
+int reqNum = 1;
+
 struct PageTableEntry {
     bool valid, dirty, referenced;
     double refTime;
-    int ownerId, ownerPage, numRefs;
+    int ownerId, ownerPage, numRefs, requestNum;
 };
 
 struct FreePage {

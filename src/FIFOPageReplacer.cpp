@@ -5,7 +5,7 @@ std::pair<bool, MemoryReference> FIFOPageReplacer::algImpl(const int &pageNum, c
 
     int page = 0;
     for (size_t i = 1; i < NUM_PAGE_TABLE_ENTRIES; ++i) {
-        if (table[i].refTime < table[page].refTime) {
+        if (table[i].requestNum < table[page].requestNum) {
             page = i;
         }
     }
