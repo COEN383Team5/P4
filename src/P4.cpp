@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     PageTable *handler = parseArguments(argc, argv);
     Process *procs = generateProcesses(handler);
     runAlg(handler, procs);
-    delete handler; //the warning this causes can never happen as handler is a non abstract instance of a class that inherits from PageTable
+    delete handler;
     delete[] procs;
     return 0;
 }

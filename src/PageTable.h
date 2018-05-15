@@ -73,7 +73,7 @@ public:
     PageTable();
     PageTable(const PageTable &other);
     PageTable &operator=(const PageTable &other);
-    ~PageTable();
+    virtual ~PageTable();
     std::string getMemoryMap() const;
     int getNumFree() const;
 
