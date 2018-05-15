@@ -7,6 +7,7 @@
 #include "Process.h"
 #include "MFUPageReplacer.h"
 #include "LFUPageReplacer.h"
+#include "LRUPageReplacer.h"
 #include "RandomPageReplacer.h"
 
 // in seconds
@@ -15,12 +16,9 @@
 double curTime;
 std::mutex stdoutMut;
 
-// TODO run 5 times and print averages
-// TODO must say what processes stole which pages from which processes
-// TODO define other handlers
 PageTable *parseArguments(int argc, char *argv[]) {
     PageTable *handler;
-    handler = new LFUPageReplacer();
+    handler = new LRUPageReplacer();
     return handler;
 }
 
