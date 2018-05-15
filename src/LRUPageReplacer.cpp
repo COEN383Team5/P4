@@ -5,7 +5,7 @@ std::pair<bool, MemoryReference> LRUPageReplacer::algImpl(const int &pageNum, co
     int page = 0;
     
     for (size_t i = 1; i < NUM_PAGE_TABLE_ENTRIES; ++i) {
-        if (table[i].numRefs < table[page].numRefs) {
+        if (table[i].refTime < table[page].refTime) {
             page = i;
         }
     }
