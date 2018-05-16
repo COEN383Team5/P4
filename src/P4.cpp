@@ -31,7 +31,8 @@ void printBarrier(const std::string& algName, int num) {
     std::cerr << "################################################" << std::endl;
 }
 
-void runAlg(PageTable *handler, Process *procs) {
+/* return value is the average hit ratio for this run */
+double runAlg(PageTable *handler, Process *procs) {
     Process *procCopy = new Process[NUM_PROCS_TO_MAKE];
     memcpy(procCopy, procs, sizeof(Process)*NUM_PROCS_TO_MAKE);
     for(int i = 0; i < NUM_PROCS_TO_MAKE; i++) {
@@ -73,6 +74,7 @@ void runAlg(PageTable *handler, Process *procs) {
     averageHitMissRatio /= NUM_PROCS_TO_MAKE;
     std::cerr << "Average Hit/Miss Ratio=" << averageHitMissRatio << std::endl;
     delete[] procCopy;
+    return averageHitMissRatio;
 }
 
 void parseArguments(int argc, char *argv[]) {
@@ -86,6 +88,7 @@ void parseArguments(int argc, char *argv[]) {
     Process *procs = generateProcesses();
     try {
         int numRuns = std::stoi(arg);
+        double aveHolder[5] = {0, 0, 0, 0, 0};
         for (int i = 0; i < numRuns; ++i) {
             FIFOPageReplacer fifoHandler = FIFOPageReplacer();
             LRUPageReplacer lruHandler = LRUPageReplacer();
@@ -93,20 +96,28 @@ void parseArguments(int argc, char *argv[]) {
             MFUPageReplacer mfuHandler = MFUPageReplacer();
             RandomPageReplacer randomHandler = RandomPageReplacer();
             printBarrier("FIFO", i);
-            runAlg(&fifoHandler, procs);
+            aveHolder[0] += runAlg(&fifoHandler, procs);
 
             printBarrier("LRU", i);
-            runAlg(&lruHandler, procs);
+            aveHolder[1] += runAlg(&lruHandler, procs);
 
             printBarrier("LFU", i);
-            runAlg(&lfuHandler, procs);
+            aveHolder[2] += runAlg(&lfuHandler, procs);
 
             printBarrier("MFU", i);
-            runAlg(&mfuHandler, procs);
+            aveHolder[3] += runAlg(&mfuHandler, procs);
 
             printBarrier("Random", i);
-            runAlg(&randomHandler, procs);
+            aveHolder[4] += runAlg(&randomHandler, procs);
         }
+        for(int i = 0; i < 5; i++) {
+            aveHolder[i] /= numRuns;
+        }
+        std::cerr   << "Fifo average hit/miss " << aveHolder[0] << std::endl
+                    << "LRU average hit/miss " << aveHolder[1] << std::endl
+                    << "LFU average hit/miss " << aveHolder[2] << std::endl
+                    << "MFU average hit/miss " << aveHolder[3] << std::endl
+                    << "Random average hit/miss " << aveHolder[4] << std::endl;
     } catch (const std::invalid_argument&) {
         if (arg == "FIFO") {
             FIFOPageReplacer fifoHandler = FIFOPageReplacer();
