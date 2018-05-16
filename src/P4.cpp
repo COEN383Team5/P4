@@ -55,8 +55,9 @@ void parseArguments(int argc, char *argv[]) {
     try {
         int numRuns = std::stoi(arg);
         for (int i = 0; i < numRuns; ++i) {
-            // printBarrier("FIFO", i);
-            //makeRun<FIFOPageReplacer>();  TODO uncomment
+            printBarrier("FIFO", i);
+            procs = makeRun<FIFOPageReplacer>(procs);
+
             printBarrier("LRU", i);
             procs = makeRun<LRUPageReplacer>(procs);
 
@@ -71,8 +72,8 @@ void parseArguments(int argc, char *argv[]) {
         }
     } catch (const std::invalid_argument&) {
         if (arg == "FIFO") {
-            //printBarrier("FIFO", 0);
-            // makeRun<FIFOPageReplacer>(); TODO uncomment
+            printBarrier("FIFO", 0);
+            procs = makeRun<FIFOPageReplacer>(procs); 
         } else if (arg == "LRU") {
             printBarrier("LRU", 0);
             procs = makeRun<LRUPageReplacer>(procs);
