@@ -53,7 +53,7 @@ Process::Process() {
     ptHandler = NULL;
 }
 
-Process::Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, PageTable *pt) {
+Process::Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration) {
     this->id = id;
     this->totalPageSize = totalPageSize;
     this->arrivalTime = arrivalTime;
@@ -62,7 +62,6 @@ Process::Process(const int &id, const int &totalPageSize, const double &arrivalT
     lastReference = -1;
     hits = 0;
     misses = 0;
-    ptHandler = pt;
 }
 
 int Process::getId() const {
@@ -99,6 +98,10 @@ double Process::getRunTime() const {
 
 std::vector<MemoryReference> Process::getReferences() const {
     return references;
+}
+
+void Process::setPTHandler(PageTable *ptHandler) {
+    this->ptHandler = ptHandler;
 }
 
 void Process::start(double curTime) {
@@ -183,7 +186,7 @@ inline void sortByArrivalTime(Process *vec) {
     quickSort(vec, 0, NUM_PROCS_TO_MAKE-1);
 }
 
-Process *generateProcesses(PageTable *pt) {
+Process *generateProcesses() {
     Process *retval = new Process[NUM_PROCS_TO_MAKE];
     unsigned long long pageSizeIndex;
     double  arrivalTime;
@@ -197,7 +200,7 @@ Process *generateProcesses(PageTable *pt) {
         std::cout << "atime " << arrivalTime << std::endl;
         duration = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%5)+1;
         pageSizeIndex = ((a*rand()+b)%PRIME_FOR_UNIFORMITY)%NUM_PAGE_OPTIONS;
-        retval[i] = Process(i, pageSizes[pageSizeIndex], arrivalTime, duration, pt);
+        retval[i] = Process(i, pageSizes[pageSizeIndex], arrivalTime, duration);
     }
     sortByArrivalTime(retval);
     return retval;

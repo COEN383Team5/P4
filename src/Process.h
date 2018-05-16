@@ -51,7 +51,7 @@ class Process {
     bool giveTime();
 public:
     Process();
-    Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration, PageTable *pt);
+    Process(const int &id, const int &totalPageSize, const double &arrivalTime, const int &duration);
 
     int getId() const;
     int getTotalPageSize() const;
@@ -62,6 +62,12 @@ public:
     int getMisses() const;
     double getRunTime() const;
     std::vector<MemoryReference> getReferences() const;
+
+    /* Sets ptHandler to be the argument passed in
+     * @param ptHandler
+     *      the PageTable to handle memory references 
+     */ 
+    void setPTHandler(PageTable *ptHandler);
 
     /* begins the processes thread of execution, which references pages every 100ms
      * @param curTime
@@ -93,6 +99,6 @@ public:
  * sorts them by arrival time
  * @retval the generated processes
  */
-extern Process *generateProcesses(PageTable *pt);
+extern Process *generateProcesses();
 
 #endif
