@@ -2,23 +2,22 @@
 #include <iostream>
 #include <vector>
 #include <mutex>
+#include <chrono>
 #include "Log.h"
 #include "MemoryReference.h"
 #include "Process.h"
 #include "MFUPageReplacer.h"
 #include "LFUPageReplacer.h"
+#include "LRUPageReplacer.h"
 #include "RandomPageReplacer.h"
 #include "FIFOPageReplacer.h"
 
 // in seconds
 #define RUN_TIME 60
 
-double curTime;
+double startTime;
 std::mutex stdoutMut;
 
-// TODO run 5 times and print averages
-// TODO must say what processes stole which pages from which processes
-// TODO define other handlers
 PageTable *parseArguments(int argc, char *argv[]) {
     PageTable *handler;
     handler = new FIFOPageReplacer();
@@ -33,11 +32,13 @@ void runAlg(PageTable *handler, Process *procs) {
         // which locks stdoutMut before printing
         std::cout << procs[i] << std::endl;
     }
-    // curTime is in seconds with 100ms resolution
-    for(curTime = 0; curTime < RUN_TIME; curTime += .1) {
+    startTime = 0;
+    startTime = getTime();
+    double curTime;
+    while((curTime = getTime()) < RUN_TIME) {
         while(handler->getNumFree() >= 4 // there are enough free pages
             && procsIndex < NUM_PROCS_TO_MAKE // not all the process have been run
-            && procs[procsIndex].getArrivalTime() <= curTime // the process has arrived
+            && procs[procsIndex].getArrivalTime() <= curTime
             && curTime+procs[procsIndex].getDuration() < RUN_TIME) { // there is time to run the process
             threads.push_back(std::thread(&Process::start, &procs[procsIndex++], curTime));
         }

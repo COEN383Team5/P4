@@ -5,8 +5,9 @@
 #include <string>
 #include "Log.h"
 
-// actually implemented in P4, but needs to be referenced by this class
-extern double curTime;
+// defined in P4, used for timestamping
+extern double startTime;
+extern double getTime();
 
 struct MemoryReference {
     // in seconds
@@ -21,7 +22,7 @@ struct MemoryReference {
 
     /* This constructor will set timeStamp to curTime
      */
-    MemoryReference(const double &timeStamp, const int &pageReferenced, const int &processId, const int &evictedPage, const int &evictedProc, const int &pageInMemory); 
+    MemoryReference(const int &pageReferenced, const int &processId, const int &evictedPage, const int &evictedProc, const int &pageInMemory); 
 
     /* makes use of stdoutMut defined in Log.h and initialized in P4
      */

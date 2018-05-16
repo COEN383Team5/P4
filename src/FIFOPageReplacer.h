@@ -5,7 +5,7 @@
 #include "MemoryReference.h"
 
 struct FIFOPageReplacer : public PageTable {
-    std::pair<bool, MemoryReference> algImpl(const int &pageNum, const int &id, const double &timeStamp);
+    std::pair<bool, MemoryReference> algImpl(const int &pageNum, const int &id);
 public:
     FIFOPageReplacer();
     FIFOPageReplacer(const FIFOPageReplacer &other);

@@ -1,11 +1,11 @@
 #include <iostream>
-#include "LFUPageReplacer.h"
+#include "LRUPageReplacer.h"
 
-std::pair<bool, MemoryReference> LFUPageReplacer::algImpl(const int &pageNum, const int &id) {
+std::pair<bool, MemoryReference> LRUPageReplacer::algImpl(const int &pageNum, const int &id) {
     int page = 0;
     
     for (size_t i = 1; i < NUM_PAGE_TABLE_ENTRIES; ++i) {
-        if (table[i].numRefs < table[page].numRefs) {
+        if (table[i].refTime < table[page].refTime) {
             page = i;
         }
     }
@@ -16,18 +16,18 @@ std::pair<bool, MemoryReference> LFUPageReplacer::algImpl(const int &pageNum, co
     return std::pair<bool, MemoryReference>(false, m);
 }
 
-LFUPageReplacer::LFUPageReplacer() : PageTable() {}
+LRUPageReplacer::LRUPageReplacer() : PageTable() {}
 
-LFUPageReplacer::LFUPageReplacer(const LFUPageReplacer &other) {
+LRUPageReplacer::LRUPageReplacer(const LRUPageReplacer &other) {
     if(this == &other) {
         return;
     }
     *this = other;
 }
 
-LFUPageReplacer &LFUPageReplacer::operator=(const LFUPageReplacer &other) {
+LRUPageReplacer &LRUPageReplacer::operator=(const LRUPageReplacer &other) {
     PageTable::operator=(other);
     return *this;
 }
 
-LFUPageReplacer::~LFUPageReplacer() {}
+LRUPageReplacer::~LRUPageReplacer() {}
