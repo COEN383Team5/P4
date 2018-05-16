@@ -10,7 +10,7 @@
 
 struct PageTableEntry {
     bool valid, dirty, referenced;
-    double refTime;
+    double refTime, firstRefTime;
     int ownerId, ownerPage, numRefs;
 };
 

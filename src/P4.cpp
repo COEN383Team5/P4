@@ -11,6 +11,7 @@
 #include "LFUPageReplacer.h"
 #include "LRUPageReplacer.h"
 #include "RandomPageReplacer.h"
+#include "FIFOPageReplacer.h"
 
 // in seconds
 #define RUN_TIME 60
