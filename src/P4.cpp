@@ -3,6 +3,7 @@
 #include <vector>
 #include <mutex>
 #include <chrono>
+#include <cstring>
 #include "Log.h"
 #include "MemoryReference.h"
 #include "Process.h"
@@ -25,11 +26,16 @@ const char *helpText =
         "\tnumRuns is the number of times you want to run each algorithm in a row. In this case it will run all of the algoritms\n\n"
         "Only one of the arguments is required.\n";
 
-template<typename Type> void makeRun() {
+template<typename Type> Process *makeRun(Process *procs) {
     Type handler;
-    Process *procs = generateProcesses(&handler);
+    if(procs == NULL) {
+        procs = generateProcesses(&handler);
+    }
+    Process *retval = new Process[NUM_PROCS_TO_MAKE];;
+    memcpy(retval, procs, sizeof(Process*)*NUM_PROCS_TO_MAKE);
     runAlg(&handler, procs);
     delete[] procs;
+    return retval;
 }
 
 void printBarrier(const std::string& algName, int num) {
@@ -46,22 +52,23 @@ void parseArguments(int argc, char *argv[]) {
 
     std::string arg(argv[1]);
 
+    Process *procs = NULL;
     try {
         int numRuns = std::stoi(arg);
         for (int i = 0; i < numRuns; ++i) {
             // printBarrier("FIFO", i);
             //makeRun<FIFOPageReplacer>();  TODO uncomment
             printBarrier("LRU", i);
-            makeRun<LRUPageReplacer>();
+            procs = makeRun<LRUPageReplacer>(procs);
 
             printBarrier("LFU", i);
-            makeRun<LFUPageReplacer>();
+            procs = makeRun<LFUPageReplacer>(procs);
 
             printBarrier("MFU", i);
-            makeRun<MFUPageReplacer>();
+            procs = makeRun<MFUPageReplacer>(procs);
 
             printBarrier("Random", i);
-            makeRun<RandomPageReplacer>();
+            procs = makeRun<RandomPageReplacer>(procs);
         }
     } catch (const std::invalid_argument&) {
         if (arg == "FIFO") {
@@ -69,21 +76,22 @@ void parseArguments(int argc, char *argv[]) {
             // makeRun<FIFOPageReplacer>(); TODO uncomment
         } else if (arg == "LRU") {
             printBarrier("LRU", 0);
-            makeRun<LRUPageReplacer>();
+            procs = makeRun<LRUPageReplacer>(procs);
         } else if (arg == "LFU") {
             printBarrier("LFU", 0);
-            makeRun<LFUPageReplacer>();
+            procs = makeRun<LFUPageReplacer>(procs);
         } else if (arg == "MFU") {
             printBarrier("MFU", 0);
-            makeRun<MFUPageReplacer>();
+            procs = makeRun<MFUPageReplacer>(procs);
         } else if (arg == "RAND") {
             printBarrier("Random", 0);
-            makeRun<RandomPageReplacer>();
+            procs = makeRun<RandomPageReplacer>(procs);
         } else {
             std::cout << helpText << std::endl;
             exit(EXIT_FAILURE);
         }
     }
+    delete[] procs;
 }
 
 void runAlg(PageTable *handler, Process *procs) {
