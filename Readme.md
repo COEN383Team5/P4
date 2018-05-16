@@ -8,6 +8,13 @@ To compile on a unix system:
 
 Usage:
 
-    bin/P4
+        P4 [algType | numRuns]
+Where:
+
+        algType is the name of an algorith to run. Possible options are: FIFO, LRU, LFU, MFU, RAND
+
+        numRuns is the number of times you want to run each algorithm in a row. In this case it will run all of the algoritms
+
+Only one of the arguments is required.
 
 Most complicated headers have comments for their functions. The assignment description is included in Project-4.pdf.
