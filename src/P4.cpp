@@ -12,8 +12,6 @@
 #include "LRUPageReplacer.h"
 #include "RandomPageReplacer.h"
 
-// in seconds
-#define RUN_TIME 60
 
 double startTime;
 std::mutex stdoutMut;
