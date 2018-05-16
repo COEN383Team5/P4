@@ -39,9 +39,9 @@ template<typename Type> Process *makeRun(Process *procs) {
 }
 
 void printBarrier(const std::string& algName, int num) {
-    std::cout << "################################################" << std::endl;
-    std::cout << "######################## " << algName << " RUN " << num << " ########################" << std::endl;
-    std::cout << "################################################" << std::endl;
+    std::cerr << "################################################" << std::endl;
+    std::cerr << "######################## " << algName << " RUN " << num << " ########################" << std::endl;
+    std::cerr << "################################################" << std::endl;
 }
 
 void parseArguments(int argc, char *argv[]) {
@@ -129,9 +129,7 @@ void runAlg(PageTable *handler, Process *procs) {
         }
     }
     averageHitMissRatio /= NUM_PROCS_TO_MAKE;
-    stdoutMut.lock();
-    std::cout << "Average Hit/Miss Ratio=" << averageHitMissRatio << std::endl;
-    stdoutMut.unlock();
+    std::cerr << "Average Hit/Miss Ratio=" << averageHitMissRatio << std::endl;
 }
 
 int main(int argc, char *argv[]) {
