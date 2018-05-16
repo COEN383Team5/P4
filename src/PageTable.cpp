@@ -36,7 +36,7 @@ void PageTable::setPage(PageTableEntry *page, const int &pageNum, const int &id)
     page->ownerPage = pageNum;
     page->valid = true;
     if(page->numRefs < 2)
-	page->firstRefTime = curTime; //first time referenced
+	page->firstRefTime = getTime(); //first time referenced
     else {
 	for (size_t i = 1; i < NUM_PAGE_TABLE_ENTRIES; ++i) {
 		if(table[i].ownerPage == page->ownerPage) {
