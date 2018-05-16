@@ -112,9 +112,18 @@ void runAlg(PageTable *handler, Process *procs) {
     stdoutMut.lock();
     std::cout << "Number of completed processes=" << numCompleted << std::endl;
     stdoutMut.unlock();
+
+    double averageHitMissRatio = 0;
     for(int i = 0; i < NUM_PROCS_TO_MAKE; i++) {
         std::cout << procs[i] << std::endl;
+        if (procs[i].getMisses() != 0) {
+            averageHitMissRatio += procs[i].getHits() / (double)procs[i].getMisses();
+        }
     }
+    averageHitMissRatio /= NUM_PROCS_TO_MAKE;
+    stdoutMut.lock();
+    std::cout << "Average Hit/Miss Ratio=" << averageHitMissRatio << std::endl;
+    stdoutMut.unlock();
 }
 
 int main(int argc, char *argv[]) {
