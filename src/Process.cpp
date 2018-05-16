@@ -196,7 +196,8 @@ Process *generateProcesses() {
     unsigned long long a = rand()%(PRIME_FOR_UNIFORMITY-2)+1, b = rand()%PRIME_FOR_UNIFORMITY;
     for(int i = 0; i < NUM_PROCS_TO_MAKE; i++) {
         // processes can be created at anytime before RUN_TIME-5.1 seconds with 100ms resolution
-        arrivalTime = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%((RUN_TIME*10)-510))/10.0;
+        std::cout << RUN_TIME*10 << std::endl;
+        arrivalTime = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%((RUN_TIME*10)-51))/10.0;
         std::cout << "atime " << arrivalTime << std::endl;
         duration = (((a*rand()+b)%PRIME_FOR_UNIFORMITY)%5)+1;
         pageSizeIndex = ((a*rand()+b)%PRIME_FOR_UNIFORMITY)%NUM_PAGE_OPTIONS;
