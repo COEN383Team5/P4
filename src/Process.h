@@ -17,6 +17,9 @@
 #define PRIME_FOR_UNIFORMITY 32749 
 #define INIT_PAGE 0
 
+// in seconds
+#define RUN_TIME 60
+
 extern const int pageSizes[];
 
 // pages for this process are always numbered from 1 to totalPageSize

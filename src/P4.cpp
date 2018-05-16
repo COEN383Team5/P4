@@ -13,8 +13,6 @@
 #include "RandomPageReplacer.h"
 #include "FIFOPageReplacer.h"
 
-// in seconds
-#define RUN_TIME 60
 
 double startTime;
 std::mutex stdoutMut;
@@ -110,7 +108,7 @@ void runAlg(PageTable *handler, Process *procs) {
         while(handler->getNumFree() >= 4 // there are enough free pages
             && procsIndex < NUM_PROCS_TO_MAKE // not all the process have been run
             && procs[procsIndex].getArrivalTime() <= curTime
-            && curTime+procs[procsIndex].getDuration() < RUN_TIME) { // there is time to run the process
+            && curTime+procs[procsIndex].getDuration() <= RUN_TIME) { // there is time to run the process
             threads.push_back(std::thread(&Process::start, &procs[procsIndex++], curTime));
         }
     }

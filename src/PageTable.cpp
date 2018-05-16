@@ -25,7 +25,6 @@ PageTableEntry *PageTable::getFreePage() {
         numFree--;
         return temp->entry;
     }
-    std::cerr << "out of memory, " << numFree << std::endl;
     return NULL;
 }
 
@@ -53,12 +52,8 @@ void PageTable::addToTail(PageTableEntry *page) {
         freePages = new FreePage();
         tailPtr = freePages;
     } else {
-        if(tailPtr->next == NULL) {
-            tailPtr->next = new FreePage();
-            tailPtr = tailPtr->next;
-        } else {
-            std::cerr << "weird" << std::endl;
-        }
+        tailPtr->next = new FreePage();
+        tailPtr = tailPtr->next;
     }
     tailPtr->entry = page;
     tailPtr->next = NULL;
